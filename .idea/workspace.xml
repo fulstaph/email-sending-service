@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="10344c3b-e82f-4916-8218-ca3f5685094b" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" path="/usr/local/Cellar/go/1.15.2/libexec" />
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+  </component>
+  <component name="KubernetesApiPersistence">
+    <option name="context" value="k8s.test" />
+    <option name="namespace" value="alljobswb" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="uu18ivz1" />
+  </component>
+  <component name="ProjectId" id="1j9fWYhCKZuLCRuVZem8XJ2egmZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
+    <property name="last_opened_file_path" value="$USER_HOME$" />
+  </component>
+  <component name="RunManager" selected="Go Build.run sender">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="email-sending-service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="DIRECTORY" />
+      <filePath value="$PROJECT_DIR$" />
+      <package value="projects/email-sending-service" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="run acceptor" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="email-sending-service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i -race" />
+      <kind value="DIRECTORY" />
+      <filePath value="$PROJECT_DIR$" />
+      <package value="projects/email-sending-service" />
+      <directory value="$PROJECT_DIR$/cmd/acceptor" />
+      <method v="2" />
+    </configuration>
+    <configuration name="run sender" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="email-sending-service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i -race" />
+      <kind value="DIRECTORY" />
+      <filePath value="$PROJECT_DIR$" />
+      <package value="projects/email-sending-service" />
+      <directory value="$PROJECT_DIR$/cmd/sender" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.run acceptor" />
+      <item itemvalue="Go Build.run sender" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="10344c3b-e82f-4916-8218-ca3f5685094b" name="Default Changelist" comment="" />
+      <created>1603221260091</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1603221260091</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="640" y="365" key="#Go_Modules" timestamp="1603305892288">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="640" y="365" key="#Go_Modules/0.0.1680.1050@0.0.1680.1050" timestamp="1603305892288" />
+    <state x="304" y="187" width="1071" height="700" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1603317262312">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="304" y="187" width="1071" height="700" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1603317262312" />
+    <state x="616" y="238" key="#com.intellij.ide.util.MemberChooser" timestamp="1603398042095">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="616" y="238" key="#com.intellij.ide.util.MemberChooser/0.0.1680.1050@0.0.1680.1050" timestamp="1603398042095" />
+    <state width="1638" height="307" key="GridCell.Tab.0.bottom" timestamp="1603643138734">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138734" />
+    <state width="1638" height="364" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1603355024515" />
+    <state width="1638" height="307" key="GridCell.Tab.0.center" timestamp="1603643138733">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138733" />
+    <state width="1638" height="364" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1603355024514" />
+    <state width="1638" height="307" key="GridCell.Tab.0.left" timestamp="1603643138732">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138732" />
+    <state width="1638" height="364" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1603355024513" />
+    <state width="1638" height="307" key="GridCell.Tab.0.right" timestamp="1603643138734">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138734" />
+    <state width="1638" height="364" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1603355024514" />
+    <state width="1638" height="307" key="GridCell.Tab.1.bottom" timestamp="1603643138736">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.1.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138736" />
+    <state width="1638" height="364" key="GridCell.Tab.1.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1603355025307" />
+    <state width="1638" height="307" key="GridCell.Tab.1.center" timestamp="1603643138735">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.1.center/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138735" />
+    <state width="1638" height="364" key="GridCell.Tab.1.center/0.23.1680.1027@0.23.1680.1027" timestamp="1603355025307" />
+    <state width="1638" height="307" key="GridCell.Tab.1.left" timestamp="1603643138735">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.1.left/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138735" />
+    <state width="1638" height="364" key="GridCell.Tab.1.left/0.23.1680.1027@0.23.1680.1027" timestamp="1603355025306" />
+    <state width="1638" height="307" key="GridCell.Tab.1.right" timestamp="1603643138736">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1638" height="307" key="GridCell.Tab.1.right/0.0.1680.1050@0.0.1680.1050" timestamp="1603643138736" />
+    <state width="1638" height="364" key="GridCell.Tab.1.right/0.23.1680.1027@0.23.1680.1027" timestamp="1603355025307" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/server/server.go</url>
+          <line>35</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/repository/emails.go</url>
+          <line>62</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/server/handlers.go</url>
+          <line>41</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/cmd/sender/main.go</url>
+          <line>11</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="GoApplicationRunConfiguration">
+        <watch expression="*(*&quot;github.com/streadway/amqp.Error&quot;)(824633778368)" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>

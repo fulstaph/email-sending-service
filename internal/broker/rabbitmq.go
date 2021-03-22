@@ -1,70 +1,145 @@
 package broker
 
 import (
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
-	"os"
+	"projects/email-sending-service/config"
+	"sync/atomic"
+	"time"
 )
 
-type Connection struct {
-	Channel *amqp.Channel
+type MessageQueue interface {
+	Open() error
+	Close() error
+	Publish(body []byte) error
+	Subscribe(handler func([]byte) error) error
 }
 
-// GetConn -
-func GetConn(rabbitURL string) (*Connection, error) {
-	conn, err := amqp.Dial(rabbitURL)
+type mq struct {
+	ch  *amqp.Channel
+	conn *amqp.Connection
+	cfg config.Broker
+	closed int32
+}
+
+var delay = time.Duration(5)
+
+// Open -
+func (m *mq) Open() (err error) {
+	m.conn, err = amqp.Dial(m.cfg.Host + m.cfg.Port)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	ch, err := conn.Channel()
-	return &Connection{
-		Channel: ch,
-	}, err
+	go func() {
+		for {
+			reason, ok := <-m.conn.NotifyClose(make(chan *amqp.Error))
+			// exit this goroutine if closed by developer
+			if !ok {
+				log.Debugln("connection closed")
+				break
+			}
+			log.Debugf("connection closed, reason: %v", reason)
+
+			// reconnect if not closed by developer
+			for {
+				// wait 1s for reconnect
+				time.Sleep(delay * time.Second)
+
+				conn, err := amqp.Dial(m.cfg.Host + m.cfg.Port)
+				if err == nil {
+					m.conn = conn
+					log.Debugln("reconnect success")
+					break
+				}
+
+				log.Debugf("reconnect failed, err: %v", err)
+			}
+		}
+	}()
+
+	m.ch, err = m.conn.Channel()
+	if err != nil {
+		return err
+	}
+	return
 }
 
-// Publish
-func (c *Connection) Publish(routingKey string, data []byte) error {
-	return c.Channel.Publish(
-		// exchange - yours may be different
-		"emails",
-		routingKey,
-		// mandatory - we don't care if there I no queue
-		false,
-		// immediate - we don't care if there is no consumer on the queue
-		false,
+
+// IsClosed indicate closed by developer
+func (m *mq) IsClosed() bool {
+	return atomic.LoadInt32(&m.closed) == 1
+}
+
+func (m *mq) Close() error {
+	if m.IsClosed() {
+		return amqp.ErrClosed
+	}
+
+	atomic.StoreInt32(&m.closed, 1)
+
+	return m.ch.Close()
+}
+
+func (m *mq) Publish(body []byte) error {
+	//_, err := m.ch.QueueDeclare(
+	//	m.cfg.QueueName, // name
+	//	true,            // durable
+	//	false,           // delete when unused
+	//	false,           // exclusive
+	//	false,           // no-wait
+	//	nil,             // arguments
+	//)
+	//if err != nil {
+	//	return err
+	//}
+
+	if m.IsClosed() {
+		return amqp.ErrClosed
+	}
+
+	err := m.ch.Publish(
+		m.cfg.Exchange, // exchange
+		m.cfg.RoutingKey,         // routing key
+		false,          // mandatory
+		false,          // immediate
 		amqp.Publishing{
-			ContentType:  "application/json",
-			Body:         data,
+			ContentType: "application/json",
+			Body:        body,
 			DeliveryMode: amqp.Persistent,
-		})
+			Timestamp: time.Now(),
+		},
+	)
+	
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// Consumer -
-func (c *Connection) Consumer(
-	queueName,
-	routingKey string,
-	handler func(d amqp.Delivery) bool,
-	concurrency int) error {
+func (m *mq) Subscribe(handler func([]byte) error) error {
+	if m.IsClosed() {
+		return amqp.ErrClosed
+	}
 
-	// create the queue if it doesn't already exist
-	_, err := c.Channel.QueueDeclare(
-		queueName,
-		true,
-		false,
-		false,
-		false,
-		nil,
+	q, err := m.ch.QueueDeclare(
+		m.cfg.QueueName, // name
+		true,   // durable
+		false,   // delete when usused
+		false,   // exclusive
+		false,   // no-wait
+		nil,     // arguments
 	)
 	if err != nil {
 		return err
 	}
 
 	// bind the queue to the routing key
-	err = c.Channel.QueueBind(
-		queueName,
-		routingKey,
-		"emails",
+	err = m.ch.QueueBind(
+		m.cfg.QueueName,
+		m.cfg.RoutingKey,
+		m.cfg.Exchange,
 		false,
 		nil,
 	)
@@ -72,43 +147,31 @@ func (c *Connection) Consumer(
 		return err
 	}
 
-	// prefetch 4x as many messages as we can handle at once
-	prefetchCount := concurrency * 4
-	err = c.Channel.Qos(prefetchCount, 0, false)
-	if err != nil {
-		return err
-	}
-
-	msgs, err := c.Channel.Consume(
-		queueName, // queue
-		"",        // consumer
-		false,     // auto-ack
-		false,     // exclusive
-		false,     // no-local
-		false,     // no-wait
-		nil,       // args
+	msgs, err := m.ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		false,   // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
 	)
-	if err != nil {
-		return err
-	}
 
-	// create a goroutine for the number of concurrent threads requested
-	for i := 0; i < concurrency; i++ {
-		fmt.Printf("Processing messages on thread %v...\n", i)
-		go func() {
-			for msg := range msgs {
-				// if tha handler returns true then ACK, else NACK
-				// the message back into the rabbit queue for
-				// another round of processing
-				if handler(msg) {
-					msg.Ack(false)
-				} else {
-					msg.Nack(false, true)
-				}
+	go func() {
+		for d := range msgs {
+			log.Printf("Received a message: %s", d.Body)
+			if handler(d.Body) == nil {
+				_ = d.Ack(false)
+			} else {
+				_ = d.Nack(false, true)
 			}
-			fmt.Println("Rabbit consumer closed - critical Error")
-			os.Exit(1)
-		}()
-	}
+		}
+	}()
 	return nil
+}
+
+func NewMessageQueue(cfg config.Broker) MessageQueue {
+	return &mq{
+		cfg: cfg,
+	}
 }

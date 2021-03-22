@@ -8,9 +8,10 @@ import (
 var DefaultPath = "config/config.json"
 
 type Config struct {
-	Database Database `json:"database"`
-	Server   Server   `json:"server"`
-	Broker   Broker   `json:"broker"`
+	Database      Database      `json:"database"`
+	Server        Server        `json:"server"`
+	Broker        Broker        `json:"broker"`
+	MailingServer MailingServer `json:"mailing_server"`
 }
 
 type Database struct {
@@ -25,6 +26,18 @@ type Server struct {
 }
 
 type Broker struct {
+	Host       string `json:"host"`
+	Port       string `json:"port"`
+	QueueName  string `json:"queue_name"`
+	Exchange   string `json:"exchange"`
+	RoutingKey string `json:"routing_key"`
+}
+
+type MailingServer struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Host     string `json:"host"`
+	Port     string `json:"port"`
 }
 
 func Load(path string) (*Config, error) {

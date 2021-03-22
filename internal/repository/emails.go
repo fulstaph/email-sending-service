@@ -129,7 +129,6 @@ func (e *emailRepo) Save(email models.Notification) (primitive.ObjectID, error) 
 
 func (e *emailRepo) Connect() error {
 	url := strings.Builder{}
-	url.WriteString("mongodb://")
 	url.WriteString(e.cfg.Host)
 	url.WriteString(e.cfg.Port)
 	opts := options.Client().ApplyURI(url.String())

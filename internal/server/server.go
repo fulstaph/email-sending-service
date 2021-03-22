@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"projects/email-sending-service/config"
@@ -11,6 +12,7 @@ import (
 type Server struct {
 	a   service.Acceptor
 	r   *gin.Engine
+	l   *logrus.Logger
 	cfg config.Server
 }
 
@@ -41,9 +43,11 @@ func (s *Server) Start() {
 func New(
 	a service.Acceptor,
 	cfg config.Server,
+	l *logrus.Logger,
 ) *Server {
 	return &Server{
-		a: a,
-		cfg:  cfg,
+		a:   a,
+		l:   l,
+		cfg: cfg,
 	}
 }

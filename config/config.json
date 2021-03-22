@@ -1,19 +1,27 @@
 {
     "database": {
-        "host": "localhost",
+        "host": "mongodb://localhost",
         "port": ":27017",
         "name": "emails",
         "collection": "notifs"
     },
 
     "broker": {
-
+        "host": "amqp://guest:guest@localhost",
+        "port": ":5672",
+        "exchange": "emails",
+        "queue_name": "emails-queue",
+        "routing_key": ""
     },
 
     "server": {
         "port": ":8080"
     },
 
-    "mailingServer": {
+    "mailing_server": {
+        "username": "alison.m4a@gmail.com",
+        "password": "",
+        "host": "smtp.gmail.com",
+        "port": ":587"
     }
 }

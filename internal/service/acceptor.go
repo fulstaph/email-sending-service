@@ -1,15 +1,17 @@
 package service
 
 import (
+	"encoding/json"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"projects/email-sending-service/internal/broker"
 	"projects/email-sending-service/internal/models"
 	"projects/email-sending-service/internal/repository"
 	"time"
 )
 
 var (
-	IdNotValidErr = errors.New("id is not valid")
+	IdNotValidErr         = errors.New("id is not valid")
 	LimitNumberTooHighErr = errors.New("limit number is too high")
 )
 
@@ -20,7 +22,8 @@ type Acceptor interface {
 }
 
 type acceptor struct {
-	r repository.EmailRepository
+	r  repository.EmailRepository
+	mq broker.MessageQueue
 }
 
 func (a *acceptor) GetByID(id string) (models.Notification, error) {
@@ -42,7 +45,7 @@ func (a *acceptor) Get(limit, skip int) ([]models.Notification, int64, int64, er
 		return nil, 0, 0, LimitNumberTooHighErr
 	}
 
-	notifs, totalDocsCount, err :=  a.r.Get(limit, skip)
+	notifs, totalDocsCount, err := a.r.Get(limit, skip)
 	if err != nil {
 		return nil, 0, 0, err
 	}
@@ -60,13 +63,20 @@ func (a *acceptor) Add(notif models.PostNotification) (string, error) {
 		CreatedAt:        time.Now(),
 	}
 
+	serializedNotification, err := json.Marshal(fullNotification)
+	if err != nil {
+		return "", err
+	}
 	// TODO: send to MQ here
+	if err = a.mq.Publish(serializedNotification); err != nil {
+		return "", err
+	}
 
 	return fullNotification.ID.Hex(), nil
 }
 
-func NewAcceptor(r repository.EmailRepository) Acceptor {
-	return &acceptor{r: r}
+func NewAcceptor(r repository.EmailRepository, mq broker.MessageQueue) Acceptor {
+	return &acceptor{r: r, mq: mq}
 }
 
 func getPagesCount(totalCount, perPageCount int64) int64 {

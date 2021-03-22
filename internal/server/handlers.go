@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"projects/email-sending-service/internal/models"
@@ -10,23 +9,37 @@ import (
 	"strconv"
 )
 
+type APIErrorResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 func (s *Server) getNotifications(c *gin.Context) {
 	var params models.PaginationParams
 	if err := c.Bind(&params); err != nil {
-		log.Error(err)
-		c.Status(http.StatusBadRequest)
+		s.l.Error(err)
+		c.JSON(http.StatusBadRequest, APIErrorResponse{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+		})
 		return
 	}
 	notifs, totalDocsCount, totalPagesCount, err := s.a.Get(params.PerPage, params.Page)
 	if err != nil {
 		switch err {
 		case service.LimitNumberTooHighErr:
-			log.Error(err)
-			c.Status(http.StatusBadRequest)
+			s.l.Error(err)
+			c.JSON(http.StatusBadRequest, APIErrorResponse{
+				Code: http.StatusBadRequest,
+				Msg:  err.Error(),
+			})
 			return
 		default:
-			log.Error(err)
-			c.Status(http.StatusInternalServerError)
+			s.l.Error(err)
+			c.JSON(http.StatusInternalServerError, APIErrorResponse{
+				Code: http.StatusInternalServerError,
+				Msg:  err.Error(),
+			})
 			return
 		}
 	}
@@ -44,16 +57,25 @@ func (s *Server) getNotification(c *gin.Context) {
 	if err != nil {
 		switch err {
 		case mongo.ErrNoDocuments:
-			log.Error(err)
-			c.Status(http.StatusNotFound)
+			s.l.Warn(err)
+			c.JSON(http.StatusNotFound, APIErrorResponse{
+				Code: http.StatusNotFound,
+				Msg:  err.Error(),
+			})
 			return
 		case service.IdNotValidErr:
-			log.Error(err)
-			c.Status(http.StatusBadRequest)
+			s.l.Warn(err)
+			c.JSON(http.StatusBadRequest, APIErrorResponse{
+				Code: http.StatusBadRequest,
+				Msg:  err.Error(),
+			})
 			return
 		default:
-			log.Error(err)
-			c.Status(http.StatusInternalServerError)
+			s.l.Error(err)
+			c.JSON(http.StatusInternalServerError, APIErrorResponse{
+				Code: http.StatusInternalServerError,
+				Msg:  err.Error(),
+			})
 			return
 		}
 	}
@@ -64,15 +86,32 @@ func (s *Server) getNotification(c *gin.Context) {
 func (s *Server) saveNotification(c *gin.Context) {
 	var notif models.PostNotification
 	if err := c.BindJSON(&notif); err != nil {
-		c.Status(http.StatusBadRequest)
+		s.l.Warn(err)
+		c.JSON(http.StatusBadRequest, APIErrorResponse{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+		})
+		return
+	}
+
+	if err := notif.Validate(); err != nil {
+		s.l.Warnf("validation err: %v", err)
+		c.JSON(http.StatusBadRequest, APIErrorResponse{
+			Code: http.StatusBadRequest,
+			Msg:  err.Error(),
+		})
 		return
 	}
 
 	id, err := s.a.Add(notif)
 	if err != nil {
-		c.Status(http.StatusInternalServerError)
+		s.l.Errorf("err in acceptor.Add: %v", err)
+		c.JSON(http.StatusInternalServerError, APIErrorResponse{
+			Code: http.StatusInternalServerError,
+			Msg:  err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusAccepted, gin.H{ "id": id })
+	c.JSON(http.StatusAccepted, gin.H{"id": id})
 }

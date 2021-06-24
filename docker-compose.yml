@@ -1,12 +1,14 @@
 version: '3.7'
 services:
+  mongodb:
+    image:
+
   acceptor:
-    build: ./cmd/acceptor
+    image: acceptor:latest
     #volumes:
     #  - "~/go/src/projects/email-sending-service/config/config.json:app/config/config.json"
     ports:
       - "8080:8080"
 
   sender:
-    build: ./cmd/sender
-    image: sender
+    image: sender:latest

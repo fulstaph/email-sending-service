@@ -1,21 +1,22 @@
 package models
 
 import (
-	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // validation errors
 var (
 	MessageEmptyValidationErr = errors.New("empty message string")
 	WrongEmailFormatErr       = errors.New("wrong email format")
-	NoEmailsProvidedErr        = errors.New("no email provided")
+	NoEmailsProvidedErr       = errors.New("no email provided")
 )
 
-var emailRegex = regexp.MustCompile("^[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,4}$")
+var emailRegex = regexp.MustCompile(`^[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,4}$`)
 
 type Notification struct {
 	ID               primitive.ObjectID `json:"id" bson:"_id"`

@@ -2,12 +2,13 @@ package service
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"projects/email-sending-service/internal/broker"
 	"projects/email-sending-service/internal/models"
 	"projects/email-sending-service/internal/repository"
-	"time"
 )
 
 var (
@@ -67,7 +68,7 @@ func (a *acceptor) Add(notif models.PostNotification) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// TODO: send to MQ here
+
 	if err = a.mq.Publish(serializedNotification); err != nil {
 		return "", err
 	}

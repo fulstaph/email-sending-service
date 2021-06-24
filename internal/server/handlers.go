@@ -1,12 +1,13 @@
 package server
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
-	"net/http"
 	"projects/email-sending-service/internal/models"
 	"projects/email-sending-service/internal/service"
-	"strconv"
 )
 
 type APIErrorResponse struct {
@@ -27,7 +28,7 @@ func (s *Server) getNotifications(c *gin.Context) {
 	notifs, totalDocsCount, totalPagesCount, err := s.a.Get(params.PerPage, params.Page)
 	if err != nil {
 		switch err {
-		case service.LimitNumberTooHighErr:
+		case service.ErrLimitNumberTooHigh:
 			s.l.Error(err)
 			c.JSON(http.StatusBadRequest, APIErrorResponse{
 				Code: http.StatusBadRequest,
@@ -63,7 +64,7 @@ func (s *Server) getNotification(c *gin.Context) {
 				Msg:  err.Error(),
 			})
 			return
-		case service.IdNotValidErr:
+		case service.ErrIDNotValid:
 			s.l.Warn(err)
 			c.JSON(http.StatusBadRequest, APIErrorResponse{
 				Code: http.StatusBadRequest,

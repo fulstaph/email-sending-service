@@ -72,7 +72,7 @@ func (e *emailRepo) Get(limit, skip int) ([]models.Notification, int64, error) {
 		return result, totalCount, nil
 	}
 
-	var finalSkip int64 = 0
+	var finalSkip int64
 
 	if skip > 0 {
 		finalSkip = int64((skip - 1) * limit)
@@ -91,14 +91,14 @@ func (e *emailRepo) Get(limit, skip int) ([]models.Notification, int64, error) {
 
 	var notif models.Notification
 	for cur.Next(context.TODO()) {
-		if err := cur.Decode(&notif); err != nil {
+		if err = cur.Decode(&notif); err != nil {
 			return nil, 0, err
 		}
 		result = append(result, notif)
 	}
 
 	if err := cur.Err(); err != nil {
-		log.Fatal(err)
+		return nil, 0, err
 	}
 
 	return result, totalCount, nil
@@ -140,16 +140,9 @@ func (e *emailRepo) Connect() error {
 		return err
 	}
 
-	if err = e.client.Ping(context.TODO(), nil); err != nil {
-		return err
-	}
-
-	return nil
+	return e.client.Ping(context.TODO(), nil)
 }
 
 func (e *emailRepo) Close() error {
-	if err := e.client.Disconnect(context.TODO()); err != nil {
-		return err
-	}
-	return nil
+	return e.client.Disconnect(context.TODO())
 }

@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	IdNotValidErr         = errors.New("id is not valid")
-	LimitNumberTooHighErr = errors.New("limit number is too high")
+	ErrIDNotValid         = errors.New("id is not valid")
+	ErrLimitNumberTooHigh = errors.New("limit number is too high")
 )
 
 type Acceptor interface {
@@ -30,7 +30,7 @@ type acceptor struct {
 func (a *acceptor) GetByID(id string) (models.Notification, error) {
 	oID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return models.Notification{}, IdNotValidErr
+		return models.Notification{}, ErrIDNotValid
 	}
 
 	notif, err := a.r.GetByID(oID)
@@ -43,7 +43,7 @@ func (a *acceptor) GetByID(id string) (models.Notification, error) {
 
 func (a *acceptor) Get(limit, skip int) ([]models.Notification, int64, int64, error) {
 	if limit > 1000 {
-		return nil, 0, 0, LimitNumberTooHighErr
+		return nil, 0, 0, ErrLimitNumberTooHigh
 	}
 
 	notifs, totalDocsCount, err := a.r.Get(limit, skip)
@@ -66,7 +66,7 @@ func (a *acceptor) Add(notif models.PostNotification) (string, error) {
 
 	serializedNotification, err := json.Marshal(fullNotification)
 	if err != nil {
-		return "", err
+		return "", err //nolint:wrapcheck
 	}
 
 	if err = a.mq.Publish(serializedNotification); err != nil {

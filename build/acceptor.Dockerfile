@@ -1,8 +1,12 @@
-FROM golang:alpine
-RUN mkdir -p /go/src/projects/email-sending-service
-ADD ../cmd/acceptor /go/src/projects/email-sending-service
-WORKDIR /go/src/projects/email-sending-service
-RUN ls -la
-RUN go build -o main cmd/acceptor/main.go
-EXPOSE 8080
-CMD ["./main"]
+FROM golang:1.16 as builder
+
+WORKDIR /app
+COPY ./go.mod ./go.sum ./
+RUN go mod tidy
+
+COPY . .
+RUN go build -o ./acceptor ./cmd/acceptor/main.go
+
+FROM gcr.io/distroless/static
+COPY --from=builder /app/acceptor /usr/bin/app
+ENTRYPOINT ["/usr/bin/acceptor"]

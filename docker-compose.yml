@@ -1,14 +1,37 @@
 version: '3.7'
 services:
   mongodb:
-    image:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    volumes:
+      - .:/data/db
+    ports:
+      - 27017:27017
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 1s
+      retries: 120
+    restart: on-failure
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - 15672:15672
+      - 5672:5672
 
   acceptor:
     image: acceptor:latest
-    #volumes:
-    #  - "~/go/src/projects/email-sending-service/config/config.json:app/config/config.json"
     ports:
       - "8080:8080"
 
   sender:
     image: sender:latest
+
+volumes:
+  mongodb:

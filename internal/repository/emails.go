@@ -2,6 +2,9 @@ package repository
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -9,8 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"projects/email-sending-service/config"
 	"projects/email-sending-service/internal/models"
-	"strings"
-	"time"
 )
 
 type EmailRepository interface {
@@ -27,7 +28,7 @@ func New(cfg config.Database) EmailRepository {
 
 type emailRepo struct {
 	client *mongo.Client
-	cfg config.Database
+	cfg    config.Database
 }
 
 func (e *emailRepo) getColl() *mongo.Collection {
@@ -80,7 +81,7 @@ func (e *emailRepo) Get(limit, skip int) ([]models.Notification, int64, error) {
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(limit))
 	findOptions.SetSkip(finalSkip)
-	findOptions.SetSort(bson.D{{"_id", -1}})
+	findOptions.SetSort(bson.D{{"_id", -1}}) //nolint:govet
 
 	cur, err := collection.Find(context.TODO(), bson.D{{}}, findOptions)
 	if err != nil {
@@ -107,7 +108,7 @@ func (e *emailRepo) GetByID(id primitive.ObjectID) (models.Notification, error) 
 	collection := e.getColl()
 	var result models.Notification
 
-	filter := bson.M{"_id": id }
+	filter := bson.M{"_id": id}
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
@@ -152,7 +153,3 @@ func (e *emailRepo) Close() error {
 	}
 	return nil
 }
-
-
-
-

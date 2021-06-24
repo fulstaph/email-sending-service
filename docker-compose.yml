@@ -6,8 +6,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: pass
-    volumes:
-      - .:/data/db
     ports:
       - 27017:27017
 
@@ -28,10 +26,7 @@ services:
   acceptor:
     image: acceptor:latest
     ports:
-      - "8080:8080"
+      - 8080:8080
 
   sender:
     image: sender:latest
-
-volumes:
-  mongodb:

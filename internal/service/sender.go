@@ -2,14 +2,15 @@ package service
 
 import (
 	"encoding/json"
+	"net/smtp"
+	"strings"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"net/smtp"
 	"projects/email-sending-service/config"
 	"projects/email-sending-service/internal/broker"
 	"projects/email-sending-service/internal/models"
 	"projects/email-sending-service/internal/repository"
-	"strings"
 )
 
 type Sender interface {
@@ -35,13 +36,13 @@ func (s *sender) Send(subject, message string, to []string) error {
 	auth := smtp.PlainAuth("", s.cfg.Username, s.cfg.Password, s.cfg.Host)
 
 	msg := []byte(
-			"Subject: " + subject + "\r\n" +
+		"Subject: " + subject + "\r\n" +
 			"\r\n" +
-			 message + "\r\n",
+			message + "\r\n",
 	)
 
 	// Sending email.
-	err := smtp.SendMail(s.cfg.Host + s.cfg.Port, auth, s.cfg.Username, to, msg)
+	err := smtp.SendMail(s.cfg.Host+s.cfg.Port, auth, s.cfg.Username, to, msg)
 	if err != nil {
 		log.Errorln(err)
 		return err
@@ -55,13 +56,11 @@ func (s *sender) processIncomingNotification(data []byte) error {
 
 	var notif models.Notification
 	if err := json.Unmarshal(data, &notif); err != nil {
-		allErrors = append(allErrors, err)
-		return err
+		return err //nolint:wrapcheck
 	}
 
 	notif.SentStatus = true
 
-	// TODO: sent emails here
 	err := s.Send(notif.Subject, notif.Message, notif.To)
 	if err != nil {
 		allErrors = append(allErrors, err)
@@ -92,8 +91,8 @@ func NewSender(r repository.EmailRepository,
 	mq broker.MessageQueue,
 	cfg config.MailingServer) Sender {
 	return &sender{
-		r:  r,
-		mq: mq,
+		r:   r,
+		mq:  mq,
 		cfg: cfg,
 	}
 }

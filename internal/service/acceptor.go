@@ -84,8 +84,9 @@ func getPagesCount(totalCount, perPageCount int64) int64 {
 	if perPageCount > 0 {
 		result := totalCount / perPageCount
 		if result > 0 && (totalCount > (perPageCount * result)) {
-			result++
+			return result + 1
 		}
+		return result
 	}
 	return 1
 }

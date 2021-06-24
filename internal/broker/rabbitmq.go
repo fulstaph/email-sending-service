@@ -1,11 +1,12 @@
 package broker
 
 import (
+	"sync/atomic"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	"projects/email-sending-service/config"
-	"sync/atomic"
-	"time"
 )
 
 type MessageQueue interface {
@@ -16,19 +17,20 @@ type MessageQueue interface {
 }
 
 type mq struct {
-	ch  *amqp.Channel
-	conn *amqp.Connection
-	cfg config.Broker
+	ch     *amqp.Channel
+	conn   *amqp.Connection
+	cfg    config.Broker
 	closed int32
 }
 
 var delay = time.Duration(5)
 
 // Open -
+//nolint:nakedret
 func (m *mq) Open() (err error) {
 	m.conn, err = amqp.Dial(m.cfg.Host + m.cfg.Port)
 	if err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
 
 	go func() {
@@ -44,7 +46,7 @@ func (m *mq) Open() (err error) {
 			// reconnect if not closed by developer
 			for {
 				// wait 1s for reconnect
-				time.Sleep(delay * time.Second)
+				time.Sleep(time.Second * delay)
 
 				conn, err := amqp.Dial(m.cfg.Host + m.cfg.Port)
 				if err == nil {
@@ -65,7 +67,6 @@ func (m *mq) Open() (err error) {
 	return
 }
 
-
 // IsClosed indicate closed by developer
 func (m *mq) IsClosed() bool {
 	return atomic.LoadInt32(&m.closed) == 1
@@ -78,7 +79,7 @@ func (m *mq) Close() error {
 
 	atomic.StoreInt32(&m.closed, 1)
 
-	return m.ch.Close()
+	return m.ch.Close() //nolint:wrapcheck
 }
 
 func (m *mq) Publish(body []byte) error {
@@ -99,20 +100,20 @@ func (m *mq) Publish(body []byte) error {
 	}
 
 	err := m.ch.Publish(
-		m.cfg.Exchange, // exchange
-		m.cfg.RoutingKey,         // routing key
-		false,          // mandatory
-		false,          // immediate
+		m.cfg.Exchange,   // exchange
+		m.cfg.RoutingKey, // routing key
+		false,            // mandatory
+		false,            // immediate
 		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        body,
+			ContentType:  "application/json",
+			Body:         body,
 			DeliveryMode: amqp.Persistent,
-			Timestamp: time.Now(),
+			Timestamp:    time.Now(),
 		},
 	)
-	
+
 	if err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
 
 	return nil
@@ -125,14 +126,14 @@ func (m *mq) Subscribe(handler func([]byte) error) error {
 
 	q, err := m.ch.QueueDeclare(
 		m.cfg.QueueName, // name
-		true,   // durable
-		false,   // delete when usused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+		true,            // durable
+		false,           // delete when usused
+		false,           // exclusive
+		false,           // no-wait
+		nil,             // arguments
 	)
 	if err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
 
 	// bind the queue to the routing key
@@ -144,18 +145,22 @@ func (m *mq) Subscribe(handler func([]byte) error) error {
 		nil,
 	)
 	if err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
 
-	msgs, err := m.ch.Consume(
+	msgs, err := m.ch.Consume( //nolint:ineffassign
 		q.Name, // queue
 		"",     // consumer
-		false,   // auto-ack
+		false,  // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
 		nil,    // args
 	)
+
+	if err != nil {
+		return err
+	}
 
 	go func() {
 		for d := range msgs {

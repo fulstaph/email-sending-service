@@ -3,9 +3,6 @@ services:
   mongodb:
     image: mongo
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
       - 27017:27017
 
@@ -24,9 +21,33 @@ services:
       - 5672:5672
 
   acceptor:
-    image: acceptor:latest
+    image: acceptor:${VERSION}
     ports:
       - 8080:8080
+    environment:
+      LOG_LEVEL: DEBUG
+      APP_NAME: acceptor
+      METRICS_PORT: ":8081"
+      PORT: ":8080"
+      DATABASE_DSN: "mongodb://mongodb:27017/"
+      DATABASE_NAME: emails
+      PRODUCER_URL: "amqp://guest:guest@rabbitmq:5672/"
+      PRODUCER_EXCHANGE: notifications
+      PRODUCER_RETRY_TIMEOUT: "2s"
 
   sender:
-    image: sender:latest
+    image: sender:${VERSION}
+    environment:
+      LOG_LEVEL: DEBUG
+      APP_NAME: sender
+      METRICS_PORT: ":8082"
+      PORT: ":8080"
+      DATABASE_DSN: "mongodb://mongodb:27017/"
+      DATABASE_NAME: emails
+      CONSUMER_CONNECTION_URL: "amqp://guest:guest@rabbitmq:5672/"
+      CONSUMER_NOTIFICATIONS_QUEUE_EXCHANGE: notifications
+      CONSUMER_NOTIFICATIONS_QUEUE_NAME: sender_email_notifications_queue
+      SMTP_USERNAME: "your_google_email"
+      SMTP_PASSWORD: "your_password"
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: ":587"

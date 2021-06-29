@@ -1,12 +1,14 @@
+# syntax=docker/dockerfile:experimental
+
 FROM golang:1.16 as builder
 
 WORKDIR /app
-COPY ./go.mod ./go.sum ./
+COPY . .
+
 RUN go mod tidy
 
-COPY . .
-RUN go build -o ./acceptor ./cmd/acceptor/main.go
+RUN go build -o ./app ./cmd/acceptor/main.go
 
 FROM gcr.io/distroless/static
-COPY --from=builder /app/acceptor /usr/bin/app
-ENTRYPOINT ["/usr/bin/acceptor"]
+COPY --from=builder /app/app /usr/bin/app
+ENTRYPOINT ["/usr/bin/app"]

@@ -1,12 +1,12 @@
-package models
+package entities
 
 import (
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.uber.org/multierr"
 )
 
 // validation errors
@@ -16,7 +16,7 @@ var (
 	ErrNoEmailsProvided       = errors.New("no email provided")
 )
 
-var emailRegex = regexp.MustCompile(`^[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,4}$`)
+var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 type Notification struct {
 	ID               primitive.ObjectID `json:"id" bson:"_id"`
@@ -32,36 +32,21 @@ type PostNotification struct {
 	Message string   `json:"message" bson:"message"`
 }
 
-func (p *PostNotification) Validate() error {
-	var allErrors []error
-
+func (p *PostNotification) Validate() (err error) {
 	if p.Message == "" {
-		allErrors = append(allErrors, ErrMessageEmptyValidation)
+		err = multierr.Append(err, ErrMessageEmptyValidation)
 	}
 
 	if len(p.To) == 0 {
-		allErrors = append(allErrors, ErrNoEmailsProvided)
+		err = multierr.Append(err, ErrNoEmailsProvided)
 	}
 
 	for _, t := range p.To {
 		if !isEmailValid(t) {
-			allErrors = append(allErrors, errors.Errorf("%s is a %s", t, ErrWrongEmailFormat.Error()))
+			err = multierr.Append(err, errors.Errorf("%s is a %s", t, ErrWrongEmailFormat.Error()))
 		}
 	}
-
-	var errStr strings.Builder
-	for _, err := range allErrors {
-		if err != nil {
-			errStr.WriteString(err.Error())
-			errStr.WriteString(" ")
-		}
-	}
-
-	if errStr.String() != "" {
-		return errors.New(errStr.String())
-	}
-
-	return nil
+	return
 }
 
 func isEmailValid(e string) bool {

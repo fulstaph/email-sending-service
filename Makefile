@@ -17,11 +17,14 @@ lint:
 	@golangci-lint run
 
 build-dev:
-	@docker build ${NOCACHE} --pull -f ./build/acceptor.Dockerfile -t acceptor:latest .
-	@docker build ${NOCACHE} --pull -f ./build/sender.Dockerfile -t sender:latest .
+	@docker build ${NOCACHE} -f ./build/acceptor.Dockerfile -t acceptor:${VERSION} .
+	@docker build ${NOCACHE} -f ./build/sender.Dockerfile -t sender:${VERSION} .
 
 run-dev-infra:
 	@docker-compose up -d mongodb rabbitmq
+
+run-app: run-dev-infra
+	@docker-compose up -d acceptor sender
 
 stop-dev: ## Stop develop environment
 	@docker-compose down

@@ -1,0 +1,4 @@
+.gitignore
+email_sending_service.pdf
+example.env
+Makefile
